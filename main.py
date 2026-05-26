@@ -1,14 +1,15 @@
-import os
 import telebot
 import requests
 from threading import Thread
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-OPENAI_KEY = os.getenv("OPENAI_KEY")
+# ВСТАВЬТЕ СЮДА ВАШИ КЛЮЧИ ПРЯМО ВНУТРИ КАВЫЧЕК:
+TELEGRAM_TOKEN = "СЮДА_ТОКЕН_ОТ_BOTFATHER"
+OPENAI_KEY = "sk-Rc4g8TixJPPhGeICh1NJ84727EKwPFb8"
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
+# Обманка для удержания бесплатного тарифа Render
 class DummyServer(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -17,6 +18,7 @@ class DummyServer(BaseHTTPRequestHandler):
         self.wfile.write(b"Bot is alive!")
 
 def run_server():
+    import os
     port = int(os.environ.get("PORT", 10000))
     server = HTTPServer(("0.0.0.0", port), DummyServer)
     server.serve_forever()
@@ -25,32 +27,29 @@ def run_server():
 def handle_message(message):
     try:
         url = "https://proxyapi.ru"
-        
-        # Используем альтернативный, самый надежный заголовок из документации ProxyAPI
         headers = {
-            "X-API-Key": OPENAI_KEY,
+            "Authorization": f"Bearer {OPENAI_KEY}",
             "Content-Type": "application/json"
         }
-        
         data = {
             "model": "gpt-4o-mini",
             "messages": [
-                {"role": "system", "content": "Ты — Grok. Общайся в ироничном, дружелюбном и живом стиле. Отвечай кратко и по делу."},
+                {"role": "system", "content": "Ты — Grok. Общайся в ироничном, дружелюбном и живом стиле. Отвечай кратко."},
                 {"role": "user", "content": message.text}
             ]
         }
         res = requests.post(url, json=data)
         
-        # Если сервер реселлера вернул ошибку, бот теперь пришлет НАСТОЯЩИЙ ЧЕЛОВЕЧЕСКИЙ текст этой ошибки
+        # Если реселлер недоволен ключом или балансом, вы увидите ЧЕТКИЙ текст причины
         if res.status_code != 200:
-            bot.reply_to(message, f"Ошибка ProxyAPI (Код {res.status_code}):\n{res.text}")
+            bot.reply_to(message, f"Ошибка ProxyAPI (Код {res.status_code}): {res.text}")
             return
             
         response = res.json()
         reply = response['choices']['message']['content']
         bot.reply_to(message, reply)
     except Exception as e:
-        bot.reply_to(message, f"Техническая ошибка в коде: {str(e)}")
+        bot.reply_to(message, f"Ошибка в коде: {str(e)}")
 
 if __name__ == "__main__":
     Thread(target=run_server, daemon=True).start()
