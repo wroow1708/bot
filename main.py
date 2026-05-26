@@ -9,7 +9,7 @@ OPENAI_KEY = os.getenv("OPENAI_KEY")
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
-# Обманка портов для тарифа Render Free
+# Обманка портов для удержания бесплатного тарифа Render
 class DummyServer(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -25,11 +25,12 @@ def run_server():
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
     try:
-        # Полный и самый точный прямой путь для ProxyAPI
+        # 1. ТУТ ПРАВИЛЬНЫЙ ДЛИННЫЙ АДРЕС
         url = "https://proxyapi.ru"
         
+        # 2. ТУТ ЧИСТЫЙ КЛЮЧ БЕЗ BEARER И БЕЗ БУКВЫ F
         headers = {
-            "Authorization": f"Bearer {OPENAI_KEY}",
+            "Authorization": OPENAI_KEY,
             "Content-Type": "application/json"
         }
         
@@ -41,7 +42,6 @@ def handle_message(message):
             ]
         }
         
-        # Отправляем запрос и смотрим на чистый ответ сервера
         res = requests.post(url, json=data)
         
         if res.status_code != 200:
@@ -52,7 +52,7 @@ def handle_message(message):
         reply = response['choices']['message']['content']
         bot.reply_to(message, reply)
     except Exception as e:
-        bot.reply_to(message, f"Техническая ошибка в коде: {str(e)}")
+        bot.reply_to(message, f"Ошибка в коде: {str(e)}")
 
 if __name__ == "__main__":
     Thread(target=run_server, daemon=True).start()
