@@ -18,7 +18,6 @@ class DummyServer(BaseHTTPRequestHandler):
         self.wfile.write(b"Bot is alive!")
 
 def run_server():
-    # Render автоматически передает порт в переменную окружения PORT, по умолчанию 10000
     port = int(os.environ.get("PORT", 10000))
     server = HTTPServer(("0.0.0.0", port), DummyServer)
     server.serve_forever()
@@ -26,6 +25,7 @@ def run_server():
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
     try:
+        # ВОТ ЗДЕСЬ ИСПРАВЛЕННЫЙ АДРЕС:
         url = "https://proxyapi.ru"
         headers = {
             "Authorization": f"Bearer {OPENAI_KEY}",
@@ -45,7 +45,5 @@ def handle_message(message):
         bot.reply_to(message, "Ошибка связи с ИИ. Проверь баланс.")
 
 if __name__ == "__main__":
-    # Запускаем обманку в отдельном потоке
     Thread(target=run_server, daemon=True).start()
-    # Запускаем самого бота
     bot.polling(none_stop=True)
