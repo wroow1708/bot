@@ -9,7 +9,6 @@ OPENAI_KEY = os.getenv("OPENAI_KEY")
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
-# Микро-сервер для обмана Render
 class DummyServer(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -25,7 +24,6 @@ def run_server():
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
     try:
-        # ВОТ ЗДЕСЬ ИСПРАВЛЕННЫЙ АДРЕС:
         url = "https://proxyapi.ru"
         headers = {
             "Authorization": f"Bearer {OPENAI_KEY}",
@@ -34,15 +32,23 @@ def handle_message(message):
         data = {
             "model": "gpt-4o-mini",
             "messages": [
-                {"role": "system", "content": "Ты — Grok. Общайся в ироничном, дружелюбном и живом стиле. Отвечай кратко и по делу."},
+                {"role": "system", "content": "Ты — Grok. Общайся в ироничном стиле."},
                 {"role": "user", "content": message.text}
             ]
         }
-        response = requests.post(url, json=data).json()
+        res = requests.post(url, json=data)
+        
+        # Если ProxyAPI прислал ошибку, бот покажет её текст
+        if res.status_code != 200:
+            bot.reply_to(message, f"Ответ от ProxyAPI (Код {res.status_code}): {res.text}")
+            return
+            
+        response = res.json()
         reply = response['choices']['message']['content']
         bot.reply_to(message, reply)
     except Exception as e:
-        bot.reply_to(message, "Ошибка связи с ИИ. Проверь баланс.")
+        # Если упал сам код, бот пришлет причину
+        bot.reply_to(message, f"Техническая ошибка в коде: {str(e)}")
 
 if __name__ == "__main__":
     Thread(target=run_server, daemon=True).start()
