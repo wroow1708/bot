@@ -26,7 +26,7 @@ def run_server():
 def handle_message(message):
     try:
         # 1. ТУТ ПРАВИЛЬНЫЙ ДЛИННЫЙ АДРЕС
-        url = "https://proxyapi.ru"
+        url = "https://api.proxyapi.ru/openai/v1"
         
         # 2. ТУТ ЧИСТЫЙ КЛЮЧ БЕЗ BEARER И БЕЗ БУКВЫ F
         headers = {
