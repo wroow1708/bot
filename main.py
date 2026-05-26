@@ -4,7 +4,7 @@ from threading import Thread
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 # ВСТАВЬТЕ СЮДА ВАШИ КЛЮЧИ ПРЯМО ВНУТРИ КАВЫЧЕК:
-TELEGRAM_TOKEN = "СЮДА_ТОКЕН_ОТ_BOTFATHER"
+TELEGRAM_TOKEN = "8803743449:AAH4GHARlIezZzbZDJlbgyHNwkupDrvouWQ"
 OPENAI_KEY = "sk-Rc4g8TixJPPhGeICh1NJ84727EKwPFb8"
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
