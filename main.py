@@ -25,29 +25,31 @@ def run_server():
 def handle_message(message):
     try:
         url = "https://proxyapi.ru"
+        
+        # Используем альтернативный, самый надежный заголовок из документации ProxyAPI
         headers = {
-            "Authorization": f"Bearer {OPENAI_KEY}",
+            "X-API-Key": OPENAI_KEY,
             "Content-Type": "application/json"
         }
+        
         data = {
             "model": "gpt-4o-mini",
             "messages": [
-                {"role": "system", "content": "Ты — Grok. Общайся в ироничном стиле."},
+                {"role": "system", "content": "Ты — Grok. Общайся в ироничном, дружелюбном и живом стиле. Отвечай кратко и по делу."},
                 {"role": "user", "content": message.text}
             ]
         }
         res = requests.post(url, json=data)
         
-        # Если ProxyAPI прислал ошибку, бот покажет её текст
+        # Если сервер реселлера вернул ошибку, бот теперь пришлет НАСТОЯЩИЙ ЧЕЛОВЕЧЕСКИЙ текст этой ошибки
         if res.status_code != 200:
-            bot.reply_to(message, f"Ответ от ProxyAPI (Код {res.status_code}): {res.text}")
+            bot.reply_to(message, f"Ошибка ProxyAPI (Код {res.status_code}):\n{res.text}")
             return
             
         response = res.json()
         reply = response['choices']['message']['content']
         bot.reply_to(message, reply)
     except Exception as e:
-        # Если упал сам код, бот пришлет причину
         bot.reply_to(message, f"Техническая ошибка в коде: {str(e)}")
 
 if __name__ == "__main__":
