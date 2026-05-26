@@ -1,15 +1,14 @@
+import os
 import telebot
 import requests
 from threading import Thread
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-# ВСТАВЬТЕ СЮДА ВАШИ КЛЮЧИ ПРЯМО ВНУТРИ КАВЫЧЕК:
-TELEGRAM_TOKEN = "8803743449:AAH4GHARlIezZzbZDJlbgyHNwkupDrvouWQ"
-OPENAI_KEY = "sk-Rc4g8TixJPPhGeICh1NJ84727EKwPFb8"
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+OPENAI_KEY = os.getenv("OPENAI_KEY")
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
-# Обманка для удержания бесплатного тарифа Render
 class DummyServer(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -18,7 +17,6 @@ class DummyServer(BaseHTTPRequestHandler):
         self.wfile.write(b"Bot is alive!")
 
 def run_server():
-    import os
     port = int(os.environ.get("PORT", 10000))
     server = HTTPServer(("0.0.0.0", port), DummyServer)
     server.serve_forever()
@@ -40,7 +38,6 @@ def handle_message(message):
         }
         res = requests.post(url, json=data)
         
-        # Если реселлер недоволен ключом или балансом, вы увидите ЧЕТКИЙ текст причины
         if res.status_code != 200:
             bot.reply_to(message, f"Ошибка ProxyAPI (Код {res.status_code}): {res.text}")
             return
