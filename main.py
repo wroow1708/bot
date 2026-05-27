@@ -34,7 +34,7 @@ def run_server():
 def handle_message(message):
     try:
         # URL для ProxyAPI
-        url = "https://api.proxyapi.ru/openai/v1/chat/completions"
+        url = "https://api.proxyapi.ru"
 
         # Заголовки для запроса
         headers = {
